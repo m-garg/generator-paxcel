@@ -1,13 +1,9 @@
-# Yo-Jekyll-Github 
+# Paxcel generator
 ## Get Started
-1.Install yo: 'npm install -g yo'
+1.Install yo and this generator 'npm install -g paxcel-node'
 
-2.Download this repository and run 'npm link' in that directory.
+2.Now go to any empty directory and run 'yo paxcellabs'
 
-3.Your npm module 'generator-paxcellabs' is published locally.
+3.Follow the instructions and then your Jekyll website structure is created.
 
-4.Now go to any empty directory and run 'yo paxcellabs'
-
-5.Follow the instructions and then your Jekyll website structure is created.
-
-6.Now go to "githubUserName.github.io/repoNameUsedWhileInstalling"
+4.Now go to "githubUserName.github.io/repoNameUsedWhileInstalling"

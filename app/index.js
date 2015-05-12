@@ -1,6 +1,6 @@
 var yeoman = require('yeoman-generator');
-//var execSync = require('child_process').execSync;
-var child_process = require('child_process');
+var execSync = require('child_process').execSync;
+//var child_process = require('child_process');
 var GitHubApi = require('github');
 var chalk = require('chalk');
 
@@ -26,7 +26,6 @@ module.exports = yeoman.generators.Base.extend({
 
   projectPrompting: function () {
     var cb = this.async();
-
     this.log(chalk.magenta("It\"s time to get Jekyllized!"));
 	this.log(chalk.blue("Make your that the directory in which you are running the command is empty"));
     this.log(chalk.yellow("\nTell me a little about your project »"));
@@ -45,7 +44,7 @@ module.exports = yeoman.generators.Base.extend({
 		message: "Give the keywords related to your website"
 	},{
 		name: "cname",
-		message : "If you want to use custom domain for this website, enter it " + chalk.yellow("Leave blank if you don't want to use custom domain"),
+		message : "If you want to use custom domain for this website, enter it ",
 		default:""
 	}];
 
@@ -142,13 +141,22 @@ module.exports = yeoman.generators.Base.extend({
       name: "githubRepoName",
       message: "Give the new repository name to create",
 	  default: "my-site"
+    },{
+      name: "githubConfig",
+	  confirm : "confirm",
+      message: "Is this the first time you are using git on this system?(yes/no)",
+	  default: "no"
     }];
 
     this.prompt(prompts, function (props) {
       this.githubUserName      = props.githubUserName;
       this.githubPassword      = props.githubPassword;
       this.githubRepoName      = props.githubRepoName;
-
+	  if(props.githubConfig=="yes" || props.githubConfig=="y"){
+		  	execSync('git config --global user.name '+this.githubUserName); 
+		  	execSync('git config --global user.email '+this.authorEmail);
+			console.log(chalk.yellow("\nSetting git user.name and email."));
+	  }
       cb();
     }.bind(this));
   },
@@ -182,13 +190,6 @@ module.exports = yeoman.generators.Base.extend({
 	this.copy('style.css','style.css');
 	this.copy('index.html','index.html');
 	this.copy('README.md','README.md');
-
-   /* if (this.amazonCloudfrontS3) {
-      this.template("conditionals/_aws-credentials.json", "aws-credentials.json");
-    }
-    else if (this.rsync) {
-      this.template("conditionals/_rsync-credentials.json", "rsync-credentials.json");
-    }*/
   },
 
   conflicts: function () {
@@ -200,31 +201,27 @@ module.exports = yeoman.generators.Base.extend({
 },function(err,res){
 	if (err){
 		console.log(chalk.red("\nError creating new repository : "+err));
-		if(err.errors.message == "name already exists on this account" ){
-			console.log(chalk.red("Repository already exists"));
+		if(err.message == "Bad credentials"){
+			console.log(chalk.red("Either username or password is incorrect."));
 		}
-		else{
-			console.log(chalk.red(err));
+		else if(err.message == "Validation Failed" ){
+			console.log(chalk.red("Repository already exists!\nPlease use a different repository name."));
 		}
 		process.exit(1);
 	}
 	else{
 		console.log(chalk.green("\nNew repository created: "+githubRepoName));
 	}
-	child_process.execSync('git init'); 
-    child_process.execSync('git add .');
-	child_process.execSync('git config core.autocrlf true');
-    child_process.execSync('git commit -m "Initial_commit"');
-    child_process.execSync('git remote add origin https://github.com/'+githubUserName+'/'+githubRepoName+'.git');
-	child_process.execSync('git branch gh-pages');
+	execSync('git init'); 
+	execSync('git config core.autocrlf true');
+    execSync('git add .');
+    execSync('git commit -m "Initial_commit"');
+    execSync('git remote add origin https://github.com/'+githubUserName+'/'+githubRepoName+'.git');
+	execSync('git branch gh-pages');
 	console.log(chalk.yellow("\nPlease enter your Github username and password again."));
-	child_process.execSync('git push origin gh-pages');
+	execSync('git push origin gh-pages');
 	console.log(chalk.green("\nEverything done : You site is now live on "));
 	console.log(chalk.yellow(githubUserName + ".github.io/" + githubRepoName));
 });
-  },
-  
-  install: function() {
-
   }
 });
